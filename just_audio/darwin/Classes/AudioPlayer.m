@@ -125,7 +125,12 @@
         } else if ([@"setVolume" isEqualToString:call.method]) {
             [self setVolume:(float)[request[@"volume"] doubleValue]];
             result(@{});
-        } else if ([@"setSkipSilence" isEqualToString:call.method]) {
+        } 
+        else if ([@"setBalance" isEqualToString:call.method]) {
+            [self setBalance:(float)[request[@"balance"] doubleValue]];
+            result(@{});
+        }
+        else if ([@"setSkipSilence" isEqualToString:call.method]) {
             /// TODO on iOS side; Seems more involved, so someone with ObjectiveC experience might look at it.
             result(@{});
         } else if ([@"setSpeed" isEqualToString:call.method]) {
@@ -181,6 +186,18 @@
 - (AVQueuePlayer *)player {
     return _player;
 }
+
+// setBalance added by audiosdev
+- (void)setBalance:(float)balance {
+    // Convert balance from -1.0 to 1.0 to a left/right volume adjustment
+    float leftVolume = 1.0f - (balance < 0 ? -balance : 0);
+    float rightVolume = 1.0f - (balance > 0 ? balance : 0);
+
+    // Set volume for each channel
+    _player.volume = leftVolume; // Left channel
+    _player.pan = balance; // Right channel
+}
+
 
 - (float)speed {
     return _speed;
